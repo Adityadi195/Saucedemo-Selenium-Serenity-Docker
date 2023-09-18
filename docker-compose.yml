@@ -2,13 +2,13 @@ version: "3"
 services:
   selenium-hub:
     image: selenium/hub:latest
-    container_name: selenium-hub-hallo
+    container_name: selenium-hub-hallow
     ports:
       - "4444:4444"
 
   chrome:
     image: selenium/node-chrome:latest
-    container_name: selenium-chrome-hallo
+    container_name: selenium-chrome-hallow
     volumes:
       - /dev/shm:/dev/shm
     depends_on:

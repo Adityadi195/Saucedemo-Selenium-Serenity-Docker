@@ -1,23 +1,24 @@
 package starter;
 
+import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.chrome.ChromeOptions;
 import org.openqa.selenium.remote.RemoteWebDriver;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.net.URL;
-import java.time.Duration;
 
 public class Hooks {
 
-    public static RemoteWebDriver initialize(Boolean isRunningOnHub) {
-        String url = "https://www.saucedemo.com/";
+    public static WebDriver webDriver;
 
-        RemoteWebDriver webDriver = null;
-        URL URL_ADDRESS;
+    private static final String SAUCE_DEMO_URL = "https://www.saucedemo.com/";
+    private static final String DEFAULT_HUB_URL = "http://172.21.0.2:4444/wd/hub";
+    private static final String HUB_URL_PROPERTY = "urlHub";
+
+    private static RemoteWebDriver initializeWebDriver(boolean isRunningOnHub) {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*", "--disable-dev-shm-usage", "--incognito");
         options.setHeadless(true);
@@ -25,35 +26,28 @@ public class Hooks {
 
         if (isRunningOnHub) {
             try {
-                URL_ADDRESS = new URL(System.getProperty("urlHub", "http://172.21.0.2:4444/wd/hub"));
-                webDriver = new RemoteWebDriver(URL_ADDRESS, options);
+                URL hubUrl = new URL(System.getProperty(HUB_URL_PROPERTY, DEFAULT_HUB_URL));
+                return new RemoteWebDriver(hubUrl, options);
             } catch (Exception e) {
                 System.out.println("Error : " + e);
+                return null;
             }
         } else {
-            webDriver = new ChromeDriver(options);
+            return new ChromeDriver(options);
         }
-        assert webDriver != null;
-        webDriver.get(url);
-        return webDriver;
     }
-
-    public static WebDriver webDriver;
-    public WebDriver driver;
-    public WebDriverWait driverWait;
-
 
     @Before
     public void openBrowser() {
-        webDriver = initialize(Boolean.parseBoolean(System.getProperty("running-on-hub", "false")));
-        driver = webDriver;
-        driverWait = new WebDriverWait(webDriver, Duration.ofSeconds(10));
+        boolean isRunningOnHub = Boolean.parseBoolean(System.getProperty("running-on-hub", "false"));
+        webDriver = initializeWebDriver(isRunningOnHub);
+        webDriver.get(SAUCE_DEMO_URL);
     }
 
-
-//    @After
-//    public void closeBrowser() throws InterruptedException {
-//        Thread.sleep(2000);
-//        webDriver.quit();
-//    }
+    @After
+    public void closeBrowser() {
+        if (webDriver != null) {
+            webDriver.quit();
+        }
+    }
 }
