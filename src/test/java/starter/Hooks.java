@@ -21,7 +21,7 @@ public class Hooks {
     private static RemoteWebDriver initializeWebDriver(boolean isRunningOnHub) {
         ChromeOptions options = new ChromeOptions();
         options.addArguments("--remote-allow-origins=*", "--disable-dev-shm-usage", "--incognito");
-        options.setHeadless(true);
+        options.setHeadless(false);
         WebDriverManager.chromedriver().setup();
 
         if (isRunningOnHub) {
